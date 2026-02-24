@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة العلاوة السنوية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C8922A;
+    --gold-light: #E8B84B;
+    --gold-pale: #FFF8EC;
+    --dark: #1A1208;
+    --dark-mid: #2D2010;
+    --brown: #5C3D0E;
+    --cream: #FDF6E8;
+    --text: #2D2010;
+    --success: #1A6B3C;
+    --error: #8B1A1A;
+    --border: rgba(200,146,42,0.25);
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘Cairo’, sans-serif;
+background: var(–dark);
+color: var(–text);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Background pattern */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background:
+radial-gradient(ellipse at 20% 20%, rgba(200,146,42,0.12) 0%, transparent 50%),
+radial-gradient(ellipse at 80% 80%, rgba(200,146,42,0.08) 0%, transparent 50%),
+repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(200,146,42,0.02) 40px, rgba(200,146,42,0.02) 41px);
+pointer-events: none;
+z-index: 0;
+}
+
+.container {
+max-width: 900px;
+margin: 0 auto;
+padding: 2rem 1.5rem 4rem;
+position: relative;
+z-index: 1;
+}
+
+/* Header */
+header {
+text-align: center;
+padding: 3rem 0 2.5rem;
+}
+
+.header-badge {
+display: inline-block;
+background: linear-gradient(135deg, var(–gold), var(–gold-light));
+color: var(–dark);
+font-size: 0.75rem;
+font-weight: 700;
+letter-spacing: 3px;
+padding: 0.4rem 1.5rem;
+border-radius: 50px;
+text-transform: uppercase;
+margin-bottom: 1.2rem;
+}
+
+h1 {
+font-family: ‘Tajawal’, sans-serif;
+font-size: clamp(2rem, 5vw, 3.2rem);
+font-weight: 900;
+color: #fff;
+line-height: 1.2;
+margin-bottom: 0.5rem;
+text-shadow: 0 2px 20px rgba(200,146,42,0.3);
+}
+
+h1 span {
+color: var(–gold-light);
+}
+
+.subtitle {
+color: rgba(255,255,255,0.45);
+font-size: 0.95rem;
+font-weight: 300;
+}
+
+/* Gold divider */
+.divider {
+display: flex;
+align-items: center;
+gap: 1rem;
+margin: 2rem 0;
+}
+.divider::before, .divider::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: linear-gradient(to left, transparent, var(–gold));
+}
+.divider::after { background: linear-gradient(to right, transparent, var(–gold)); }
+.divider span {
+color: var(–gold);
+font-size: 1.2rem;
+}
+
+/* Cards */
+.card {
+background: rgba(253,246,232,0.03);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 2rem;
+margin-bottom: 1.5rem;
+backdrop-filter: blur(10px);
+transition: border-color 0.3s;
+}
+.card:hover { border-color: rgba(200,146,42,0.45); }
+
+.card-title {
+font-size: 1rem;
+font-weight: 700;
+color: var(–gold-light);
+margin-bottom: 1.5rem;
+display: flex;
+align-items: center;
+gap: 0.6rem;
+}
+.card-title .icon {
+width: 28px; height: 28px;
+background: linear-gradient(135deg, var(–gold), var(–gold-light));
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.85rem;
+color: var(–dark);
+}
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
+@media(max-width: 640px) {
+.grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* Form elements */
+.field { display: flex; flex-direction: column; gap: 0.45rem; }
+
+label {
+font-size: 0.82rem;
+font-weight: 600;
+color: rgba(255,255,255,0.6);
+letter-spacing: 0.5px;
+}
+
+input, select {
+background: rgba(0,0,0,0.35);
+border: 1px solid rgba(200,146,42,0.2);
+border-radius: 10px;
+padding: 0.8rem 1rem;
+font-family: ‘Cairo’, sans-serif;
+font-size: 0.95rem;
+color: #fff;
+width: 100%;
+transition: border-color 0.3s, box-shadow 0.3s;
+direction: rtl;
+}
+
+input:focus, select:focus {
+outline: none;
+border-color: var(–gold);
+box-shadow: 0 0 0 3px rgba(200,146,42,0.15);
+}
+
+input::placeholder { color: rgba(255,255,255,0.25); }
+
+select option { background: #1A1208; color: #fff; }
+
+/* Calculate button */
+.btn-calc {
+width: 100%;
+padding: 1.1rem;
+background: linear-gradient(135deg, var(–gold), var(–gold-light), var(–gold));
+background-size: 200% 100%;
+background-position: right;
+border: none;
+border-radius: 12px;
+font-family: ‘Cairo’, sans-serif;
+font-size: 1.05rem;
+font-weight: 700;
+color: var(–dark);
+cursor: pointer;
+transition: background-position 0.4s, transform 0.2s, box-shadow 0.3s;
+letter-spacing: 1px;
+margin-top: 0.5rem;
+box-shadow: 0 4px 20px rgba(200,146,42,0.3);
+}
+
+.btn-calc:hover {
+background-position: left;
+transform: translateY(-1px);
+box-shadow: 0 8px 30px rgba(200,146,42,0.45);
+}
+
+.btn-calc:active { transform: translateY(0); }
+
+/* Results */
+#results {
+display: none;
+animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.results-header {
+text-align: center;
+color: var(–gold-light);
+font-size: 1.3rem;
+font-weight: 700;
+margin-bottom: 1.5rem;
+}
+
+/* Result rows */
+.result-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0.85rem 0;
+border-bottom: 1px solid rgba(200,146,42,0.1);
+}
+.result-row:last-child { border-bottom: none; }
+
+.result-label {
+font-size: 0.9rem;
+color: rgba(255,255,255,0.65);
+font-weight: 500;
+}
+
+.result-value {
+font-size: 1rem;
+font-weight: 700;
+color: #fff;
+direction: ltr;
+}
+
+.result-value.highlight {
+color: var(–gold-light);
+font-size: 1.1rem;
+}
+
+.result-value.deduction {
+color: #FF8080;
+}
+
+/* Summary boxes */
+.summary-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 1rem;
+margin-top: 1rem;
+}
+@media(max-width: 640px) { .summary-grid { grid-template-columns: 1fr; } }
+
+.summary-box {
+background: rgba(0,0,0,0.3);
+border-radius: 12px;
+padding: 1.2rem;
+text-align: center;
+border: 1px solid var(–border);
+}
+
+.summary-box.total {
+border-color: var(–gold);
+background: rgba(200,146,42,0.08);
+}
+
+.summary-box.deductions {
+border-color: rgba(255,100,100,0.4);
+background: rgba(255,100,100,0.05);
+}
+
+.summary-box.net {
+border-color: rgba(50,200,100,0.4);
+background: rgba(50,200,100,0.07);
+}
+
+.summary-label {
+font-size: 0.78rem;
+color: rgba(255,255,255,0.5);
+margin-bottom: 0.5rem;
+font-weight: 600;
+}
+
+.summary-amount {
+font-size: 1.4rem;
+font-weight: 900;
+direction: ltr;
+display: block;
+}
+
+.summary-box.total .summary-amount { color: var(–gold-light); }
+.summary-box.deductions .summary-amount { color: #FF8080; }
+.summary-box.net .summary-amount { color: #5AFFAA; }
+
+.sar { font-size: 0.7em; opacity: 0.7; margin-right: 2px; }
+
+/* Section separator */
+.section-label {
+font-size: 0.75rem;
+font-weight: 700;
+color: var(–gold);
+letter-spacing: 2px;
+text-transform: uppercase;
+margin: 1.5rem 0 0.5rem;
+opacity: 0.8;
+}
+
+/* Footer */
+footer {
+text-align: center;
+padding: 2rem 0;
+color: rgba(255,255,255,0.2);
+font-size: 0.8rem;
+}
+
+/* Info tooltip */
+.hint {
+font-size: 0.72rem;
+color: rgba(200,146,42,0.6);
+margin-top: 0.25rem;
+}
+
+/* Reset button */
+.btn-reset {
+width: 100%;
+padding: 0.8rem;
+background: transparent;
+border: 1px solid rgba(200,146,42,0.3);
+border-radius: 10px;
+font-family: ‘Cairo’, sans-serif;
+font-size: 0.9rem;
+color: rgba(255,255,255,0.5);
+cursor: pointer;
+transition: all 0.3s;
+margin-top: 1rem;
+}
+.btn-reset:hover {
+border-color: var(–gold);
+color: var(–gold-light);
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-badge">الموارد البشرية</div>
+    <h1>حاسبة <span>العلاوة السنوية</span></h1>
+    <p class="subtitle">احسب علاوتك السنوية وتفاصيل راتبك بدقة</p>
+  </header>
+
+  <!-- Input Card -->
+
+  <div class="card">
+    <div class="card-title">
+      <div class="icon">📋</div>
+      البيانات الأساسية
+    </div>
+
+```
+<div class="grid-3">
+  <div class="field">
+    <label>المرتبة الوظيفية</label>
+    <select id="grade">
+      <option value="">-- اختر المرتبة --</option>
+      <option value="1">45 المرتبة</option>
+      <option value="2">المرتبة 46</option>
+      <option value="3">المرتبة 47</option>
+      <option value="4">المرتبة 48</option>
+      <option value="5">المرتبة 49</option>
+      <option value="6">المرتبة 50</option>
+      <option value="7">المرتبة 51</option>
+      <option value="8">المرتبة 52</option>
+      <option value="9">المرتبة 53</option>
+      <option value="10">المرتبة 54</option>
+      <option value="11">المرتبة 55</option>
+      <option value="12">المرتبة 56 </option>
+    </select>
+    <span class="hint">تُحدد بدل النقل (≥ المرتبة 47 = 900 ريال)</span>
+  </div>
+
+  <div class="field">
+    <label>التقييم السنوي</label>
+    <select id="rating">
+      <option value="">-- اختر التقييم --</option>
+      <option value="ممتاز">ممتاز</option>
+      <option value="جيد جداً">جيد جداً</option>
+      <option value="جيد">جيد</option>
+      <option value="مقبول">مقبول</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>الراتب الأساسي الحالي (ريال)</label>
+    <input type="number" id="basicSalary" placeholder="مثال: 5000" min="0">
+  </div>
+</div>
+
+<div class="grid-2" style="margin-top:1.2rem">
+  <div class="field">
+    <label>نسبة العلاوة (%)</label>
+    <input type="number" id="allowanceRate" placeholder="مثال: 5" min="0" max="100" step="0.5">
+    <span class="hint">النسبة المئوية للزيادة على الراتب الأساسي</span>
+  </div>
+
+  <div class="field">
+    <label>هل الوظيفة على نظام 4×4؟</label>
+    <select id="shift44">
+      <option value="no">لا</option>
+      <option value="yes">نعم</option>
+    </select>
+  </div>
+</div>
+
+<div style="margin-top:1.5rem">
+  <button class="btn-calc" onclick="calculate()">⚡ احسب العلاوة والراتب</button>
+</div>
+```
+
+  </div>
+
+  <!-- Results -->
+
+  <div id="results">
+    <div class="card">
+      <div class="card-title">
+        <div class="icon">📈</div>
+        تفاصيل العلاوة والراتب
+      </div>
+
+```
+  <!-- Allowance section -->
+  <p class="section-label">تفاصيل العلاوة</p>
+  <div class="result-row">
+    <span class="result-label">الراتب الأساسي الحالي</span>
+    <span class="result-value" id="r-basic"></span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">نسبة العلاوة</span>
+    <span class="result-value highlight" id="r-rate"></span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">قيمة الزيادة</span>
+    <span class="result-value highlight" id="r-increase"></span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">الراتب الأساسي بعد الزيادة</span>
+    <span class="result-value highlight" id="r-newBasic"></span>
+  </div>
+
+  <!-- Allowances section -->
+  <p class="section-label" style="margin-top:1.5rem">البدلات</p>
+  <div class="result-row">
+    <span class="result-label">بدل السكن (25% من الأساسي)</span>
+    <span class="result-value" id="r-housing"></span>
+  </div>
+  <div class="result-row">
+    <span class="result-label" id="r-transport-label">بدل النقل</span>
+    <span class="result-value" id="r-transport"></span>
+  </div>
+  <div class="result-row" id="row-44" style="display:none">
+    <span class="result-label">بدل 4×4 (10% من الأساسي)</span>
+    <span class="result-value" id="r-shift44"></span>
+  </div>
+  <div class="result-row" id="row-44b" style="display:none">
+    <span class="result-label">تعويض جدول عمل 4×4 (5% من الأساسي)</span>
+    <span class="result-value" id="r-shift44b"></span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">بدل طبيعة العمل (20% — بحد أقصى 2000 ريال)</span>
+    <span class="result-value" id="r-nature"></span>
+  </div>
+
+  <!-- Deductions section -->
+  <p class="section-label" style="margin-top:1.5rem">الخصومات</p>
+  <div class="result-row">
+    <span class="result-label">التأمين الاجتماعي (9.75% من الأساسي)</span>
+    <span class="result-value deduction" id="r-gosi"></span>
+  </div>
+  <div class="result-row">
+    <span class="result-label">ساند (1% من الأساسي)</span>
+    <span class="result-value deduction" id="r-saned"></span>
+  </div>
+  <div class="result-row">
+    <span class="result-label"><strong>إجمالي الخصومات</strong></span>
+    <span class="result-value deduction" id="r-totalDed"></span>
+  </div>
+</div>
+
+<!-- Summary -->
+<div class="summary-grid">
+  <div class="summary-box total">
+    <div class="summary-label">إجمالي الراتب</div>
+    <span class="summary-amount" id="s-gross"><span class="sar">ر.س</span></span>
+  </div>
+  <div class="summary-box deductions">
+    <div class="summary-label">إجمالي الخصومات</div>
+    <span class="summary-amount" id="s-ded"><span class="sar">ر.س</span></span>
+  </div>
+  <div class="summary-box net">
+    <div class="summary-label">صافي الراتب</div>
+    <span class="summary-amount" id="s-net"><span class="sar">ر.س</span></span>
+  </div>
+</div>
+
+<button class="btn-reset" onclick="reset()">↺ إعادة الحساب</button>
+```
+
+  </div>
+
+  <footer>© حاسبة العلاوة السنوية — للاستخدام التقريبي فقط</footer>
+</div>
+
+<script>
+function fmt(n) {
+  return n.toLocaleString('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ر.س';
+}
+
+function calculate() {
+  const grade = parseInt(document.getElementById('grade').value) || 0;
+  const rating = document.getElementById('rating').value;
+  const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+  const allowanceRate = parseFloat(document.getElementById('allowanceRate').value) || 0;
+  const is44 = document.getElementById('shift44').value === 'yes';
+
+  if (!grade || !rating || !basicSalary || !allowanceRate) {
+    alert('يرجى إدخال جميع الحقول المطلوبة');
+    return;
+  }
+
+  // Allowance
+  const increase = basicSalary * (allowanceRate / 100);
+  const newBasic = basicSalary + increase;
+
+  // Housing: 25% of new basic
+  const housing = newBasic * 0.25;
+
+  // Transport: 900 if grade >= 5, else 600
+  const transport = grade >= 5 ? 900 : 600;
+  const transportLabel = grade >= 5
+    ? `بدل النقل (المرتبة ${grade} — 900 ريال ثابتة)`
+    : `بدل النقل (المرتبة ${grade} — 600 ريال ثابتة)`;
+
+  // 4x4 allowances
+  const shift44 = is44 ? newBasic * 0.10 : 0;
+  const shift44b = is44 ? newBasic * 0.05 : 0;
+
+  // Nature of work: 20% max 2000
+  const natureRaw = newBasic * 0.20;
+  const nature = Math.min(natureRaw, 2000);
+
+  // Gross
+  const gross = newBasic + housing + transport + shift44 + shift44b + nature;
+
+  // Deductions
+  const gosi = newBasic * 0.0975;
+  const saned = newBasic * 0.01;
+  const totalDed = gosi + saned;
+
+  // Net
+  const net = gross - totalDed;
+
+  // Populate results
+  document.getElementById('r-basic').textContent = fmt(basicSalary);
+  document.getElementById('r-rate').textContent = allowanceRate + '%';
+  document.getElementById('r-increase').textContent = fmt(increase);
+  document.getElementById('r-newBasic').textContent = fmt(newBasic);
+  document.getElementById('r-housing').textContent = fmt(housing);
+  document.getElementById('r-transport-label').textContent = transportLabel;
+  document.getElementById('r-transport').textContent = fmt(transport);
+
+  if (is44) {
+    document.getElementById('row-44').style.display = 'flex';
+    document.getElementById('row-44b').style.display = 'flex';
+    document.getElementById('r-shift44').textContent = fmt(shift44);
+    document.getElementById('r-shift44b').textContent = fmt(shift44b);
+  } else {
+    document.getElementById('row-44').style.display = 'none';
+    document.getElementById('row-44b').style.display = 'none';
+  }
+
+  document.getElementById('r-nature').textContent = fmt(nature) + (natureRaw > 2000 ? ' (الحد الأقصى)' : '');
+  document.getElementById('r-gosi').textContent = fmt(gosi);
+  document.getElementById('r-saned').textContent = fmt(saned);
+  document.getElementById('r-totalDed').textContent = fmt(totalDed);
+
+  document.getElementById('s-gross').innerHTML = `<span class="sar">ر.س</span> ${gross.toLocaleString('ar-SA', {minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  document.getElementById('s-ded').innerHTML = `<span class="sar">ر.س</span> ${totalDed.toLocaleString('ar-SA', {minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  document.getElementById('s-net').innerHTML = `<span class="sar">ر.س</span> ${net.toLocaleString('ar-SA', {minimumFractionDigits:2,maximumFractionDigits:2})}`;
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function reset() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('basicSalary').value = '';
+  document.getElementById('allowanceRate').value = '';
+  document.getElementById('grade').value = '';
+  document.getElementById('rating').value = '';
+  document.getElementById('shift44').value = 'no';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
